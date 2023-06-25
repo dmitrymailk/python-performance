@@ -18,8 +18,8 @@ def report_progress(map_returns, tag, callback):
 
 
 def chunk0(my_list, chunk_size):
-    for i in range(0, len(my_list), chunk_size):   #requires a list
-        yield my_list[i:i + chunk_size]
+    for i in range(0, len(my_list), chunk_size):  # requires a list
+        yield my_list[i : i + chunk_size]
 
 
 def chunk(my_iter, chunk_size):
@@ -39,25 +39,27 @@ def chunk_runner(fun, data):
         ret.append(fun(datum))
     return ret
 
+
 def chunked_async_map(pool, mapper, data, chunk_size):
     async_returns = []
     for data_part in chunk(data, chunk_size):
-        async_returns.append(pool.apply_async(
-            chunk_runner, (mapper, data_part)))  #RUNNER
+        async_returns.append(
+            pool.apply_async(chunk_runner, (mapper, data_part))
+        )  # RUNNER
     return async_returns
 
 
-def map_reduce(pool, my_input, mapper, reducer, chunk_size, callback=None):  #XXX
+def map_reduce(pool, my_input, mapper, reducer, chunk_size, callback=None):  # XXX
     map_returns = chunked_async_map(pool, mapper, my_input, chunk_size)
-    report_progress(map_returns, 'map', callback)
+    report_progress(map_returns, "map", callback)
     map_results = []
     for ret in map_returns:
-        map_results.extend(ret.get())   # EXTEND
+        map_results.extend(ret.get())  # EXTEND
     distributor = defaultdict(list)
     for key, value in map_results:
         distributor[key].append(value)
     returns = chunked_async_map(pool, reducer, distributor.items(), chunk_size)
-    report_progress(returns, 'reduce', callback)
+    report_progress(returns, "reduce", callback)
     results = []
     for ret in returns:
         results.extend(ret.get())
@@ -73,14 +75,18 @@ def counter(emitted):
 
 
 def reporter(tag, done, not_done):
-    print(f'Operation {tag}: {done}/{done+not_done}')
+    print(f"Operation {tag}: {done}/{done+not_done}")
 
 
-if __name__ == '__main__':
-    words = [word
-             for word in map(lambda x: x.strip().rstrip(),
-                             ' '.join(open('text.txt', 'rt', encoding='utf-8').readlines()).split(' '))
-             if word != '' ]
+if __name__ == "__main__":
+    words = [
+        word
+        for word in map(
+            lambda x: x.strip().rstrip(),
+            " ".join(open("text.txt", "rt", encoding="utf-8").readlines()).split(" "),
+        )
+        if word != ""
+    ]
 
     chunk_size = int(sys.argv[1])
     pool = mp.Pool()

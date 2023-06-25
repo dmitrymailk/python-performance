@@ -3,11 +3,15 @@ import sys
 import numpy as np
 from PIL import Image
 
-import pyximport; pyximport.install(
+import pyximport
+
+pyximport.install(
     language_level=3,
     setup_args={
-        'options': {'define_macrsdcsdos': {"CYTHON_TRACE": "1"}},
-        'include_dirs': np.get_include()})
+        "options": {"define_macrsdcsdos": {"CYTHON_TRACE": "1"}},
+        "include_dirs": np.get_include(),
+    },
+)
 import cyfilter
 
 command = sys.argv[1] if len(sys.argv) > 1 else "python"
@@ -33,9 +37,7 @@ def python_darken_ufunc(pixel, dark):
     return int(mean * (255 - dark) / 255)
 
 
-np_darken = np.vectorize(
-    python_darken_ufunc, otypes=[np.uint8],
-    signature='(n),()->()')
+np_darken = np.vectorize(python_darken_ufunc, otypes=[np.uint8], signature="(n),()->()")
 #    signature='(n,m,z),(n,m)->(n,m)')
 
 

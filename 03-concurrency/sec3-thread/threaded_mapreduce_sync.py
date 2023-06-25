@@ -13,7 +13,13 @@ def map_reduce_still_naive(my_input, mapper, reducer):
     return results
 
 
-words = filter(lambda x: x!= '', map(lambda x: x.strip().rstrip(), ' '.join(open('text.txt', 'rt', encoding='utf-8').readlines()).split(' ')))
+words = filter(
+    lambda x: x != "",
+    map(
+        lambda x: x.strip().rstrip(),
+        " ".join(open("text.txt", "rt", encoding="utf-8").readlines()).split(" "),
+    ),
+)
 
 emiter = lambda word: (word, 1)
 counter = lambda emitted: (emitted[0], sum(emitted[1]))
